@@ -1,0 +1,20 @@
+# Python venv (created by .envrc)
+env/
+__pycache__/
+*.pyc
+
+# Local secrets
+.env
+.env.*
+
+# Cal.com clone (separate git repo, see plan/PLAN-cal.md)
+cal/
+
+# Node
+node_modules/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
