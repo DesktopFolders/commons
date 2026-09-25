@@ -1,8 +1,6 @@
 # Plan Tech
 
-For RFP spec generation
-
-Guidance for integrated development specs using AI Model Context Protocol (MCP), AWS Lambda APIs and Google Cloud Run serverless APIs.
+For RFP spec generation - Guidance for integrated development updates using AI Model Context Protocol (MCP), AWS Lambda APIs and equivalent Google Cloud Run serverless APIs.
 
 ## Tech Ecosystem Integration
 
