@@ -53,19 +53,51 @@ In `cal/.env`, delete the `DATABASE_URL`, `DATABASE_DIRECT_URL`, `NEXTAUTH_SECRE
 | `NEXTAUTH_URL`              | `http://localhost:3000` |
 | `CALCOM_TELEMETRY_DISABLED` | `1`                     |
 
-Add to `commons/.env`:
+Then set up `commons/.env`. Run from `cal/`.
+Each part is only added if it's missing, so this is safe to re-run and never replaces an existing value:
 
-| Variable                      | Value                                   |
-| ----------------------------- | --------------------------------------- |
-| `CAL_DATABASE_URL`            | Neon direct connection string (step 0)  |
-| `CAL_DATABASE_DIRECT_URL`     | Same as `CAL_DATABASE_URL`              |
-| `CAL_NEXTAUTH_SECRET`         | Output of `openssl rand -base64 32`     |
-| `CAL_CALENDSO_ENCRYPTION_KEY` | Output of `openssl rand -base64 24`     |
+```bash
+# Create commons/.env from the template (header and optional NEON_API_KEY)
+test -e ../.env || cp ../.env.example ../.env
+
+# Cal's database URLs, left empty to fill in from Neon
+grep -q '^CAL_DATABASE_URL=' ../.env || cat >> ../.env <<'EOF'
+
+# Cal (plan/PLAN-cal.md) - Set the first two. They are the same.
+CAL_DATABASE_URL=""
+CAL_DATABASE_DIRECT_URL=""
+EOF
+
+# Cal's secrets, random values generated once
+if ! grep -q '^CAL_NEXTAUTH_SECRET=' ../.env; then
+  echo "# Random values generated once during install" >> ../.env
+  echo "CAL_NEXTAUTH_SECRET=\"$(openssl rand -base64 32)\"" >> ../.env
+fi
+grep -q '^CAL_CALENDSO_ENCRYPTION_KEY=' ../.env || echo "CAL_CALENDSO_ENCRYPTION_KEY=\"$(openssl rand -base64 24)\"" >> ../.env
+```
+
+The result in `commons/.env`:
+
+| Variable                      | Value                                          |
+| ----------------------------- | ---------------------------------------------- |
+| `NEON_API_KEY`                | Optional, left empty                           |
+| `CAL_DATABASE_URL`            | Paste the Neon direct connection string (step 0) |
+| `CAL_DATABASE_DIRECT_URL`     | Same as `CAL_DATABASE_URL`                     |
+| `CAL_NEXTAUTH_SECRET`         | Random, generated above                        |
+| `CAL_CALENDSO_ENCRYPTION_KEY` | Random, generated above                        |
+
+Only the two database URLs come from Neon, and they're the only values to fill in by hand.
+The two secrets are random values generated once during install. An agent running this plan does this itself; nobody needs to look them up or paste them.
 
 Quote values in `commons/.env` (`CAL_X="..."`). `site-env` reads the file as a shell script.
 Never commit or paste either file.
 
-Do not change `CAL_CALENDSO_ENCRYPTION_KEY` after users connect calendars. Stored OAuth tokens become unreadable if it changes.
+Never regenerate either secret on an existing install:
+
+- Changing `CAL_NEXTAUTH_SECRET` signs everyone out.
+- Changing `CAL_CALENDSO_ENCRYPTION_KEY` makes stored calendar and app credentials unreadable. Users would have to reconnect them.
+
+Back up `commons/.env` somewhere safe. Losing it has the same effect as regenerating both.
 
 ## 3. Create the database schema
 

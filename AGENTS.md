@@ -23,7 +23,7 @@ When adding a site, give it an unused port, add it to the list above and a secti
 
 ### Secrets in `commons/.env`
 
-`commons/.env` holds the secrets for every site, so each name must start with its site's prefix:
+`commons/.env` holds the secrets for every site component, so each name must start with its component's prefix:
 `CAL_DATABASE_URL`, not `DATABASE_URL`.
 
 - Never add generic names like `DATABASE_URL`, `NEXTAUTH_SECRET` or `PORT` to `commons/.env`. Two sites would clash, and direnv loads the file into every shell in `commons/`.
@@ -33,8 +33,8 @@ When adding a site, give it an unused port, add it to the list above and a secti
 
 ### Cal (port 3000)
 
-Cal uses a Neon PostgreSQL database (see `support/neon/README.md`). Its secrets are the `CAL_*` entries in `commons/.env`.
-If `cal/` is missing, or `CAL_DATABASE_URL` still has the `USER:PASSWORD@HOST` placeholder, follow `plan/PLAN-cal.md` steps 0-4 first.
+Cal optionally uses a Neon PostgreSQL database (see `support/neon/README.md`). Its secrets are the `CAL_*` entries in `commons/.env`.
+If `cal/` is missing, or `CAL_DATABASE_URL` in `commons/.env` is empty, follow `plan/PLAN-cal.md` steps 0-4 first.
 If `cal/apps/web/.next` is missing, run `site-env CAL yarn build` first.
 
 ```bash
