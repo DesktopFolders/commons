@@ -2,6 +2,8 @@
 
 For RFP spec generation
 
+Guidance for integrated development specs using AI Model Context Protocol (MCP), AWS Lambda APIs and Google Cloud Run serverless APIs.
+
 ## Tech Ecosystem Integration
 
 [startupatlanta.com](https://startupatlanta.com) - [By Kiksasa](https://www.kiksasa.com/)  
@@ -10,4 +12,4 @@ For RFP spec generation
 
 ## Components
 
-[Cal.com](https://github.com/calcom/cal.diy) - [PLAN-ca.md](../plan/PLAN-cal.md)
+[Cal.com](https://github.com/calcom/cal.diy) - [PLAN-cal.md](../plan/PLAN-cal.md)
