@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# Run a command with one site's secrets from commons/.env.
+#
+# Usage: site-env <PREFIX> <command> [args...]
+#   e.g. site-env CAL yarn start
+#
+# Every PREFIX_NAME in commons/.env is exported as NAME for the command only,
+# so CAL_DATABASE_URL becomes DATABASE_URL. Variables already set in the
+# environment take precedence over a site's own .env file, so these win.
+set -euo pipefail
+
+if [ $# -lt 2 ]; then
+  echo "Usage: site-env <PREFIX> <command> [args...]" >&2
+  exit 1
+fi
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+prefix="$1"
+shift
+
+if [ ! -f "$root/.env" ]; then
+  echo "site-env: $root/.env not found" >&2
+  exit 1
+fi
+
+set -a
+# shellcheck disable=SC1091
+source "$root/.env"
+set +a
+
+found=0
+for name in $(compgen -e); do
+  case "$name" in
+    "${prefix}_"*)
+      export "${name#"${prefix}_"}=${!name}"
+      found=1
+      ;;
+  esac
+done
+
+if [ "$found" -eq 0 ]; then
+  echo "site-env: no ${prefix}_* variables in $root/.env" >&2
+  exit 1
+fi
+
+exec "$@"

@@ -67,7 +67,7 @@ if [ ! -d "env" ]; then
 fi
 source env/bin/activate
 dotenv_if_exists .env
-PATH_add bin
+PATH_add support/bin
 export PYTHONPATH="$PWD:$PYTHONPATH"
 echo "✅ Python venv active: $(python3 --version)"
 ```
