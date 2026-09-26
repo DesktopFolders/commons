@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Run the Vercel CLI installed in support/vercel.
+#
+# - Reads VERCEL_TOKEN from commons/.env (no `vercel login` needed).
+# - Keeps the CLI's global config inside support/vercel/.global,
+#   instead of the user's home folder.
+# - Turns off Vercel CLI telemetry.
+#
+# Usage: vercel <command> [args...]   (support/bin is on the PATH via .envrc)
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+cli="$root/support/vercel/node_modules/.bin/vercel"
+
+if [ ! -x "$cli" ]; then
+  echo "vercel: CLI not installed. See support/vercel/README.md" >&2
+  exit 1
+fi
+
+if [ -z "${VERCEL_TOKEN:-}" ] && [ -f "$root/.env" ]; then
+  VERCEL_TOKEN="$(set -a; source "$root/.env" >/dev/null 2>&1; printf '%s' "${VERCEL_TOKEN:-}")"
+fi
+if [ -z "${VERCEL_TOKEN:-}" ]; then
+  echo "vercel: VERCEL_TOKEN is empty in $root/.env. See support/vercel/README.md" >&2
+  exit 1
+fi
+
+export VERCEL_TOKEN
+export VERCEL_TELEMETRY_DISABLED=1
+exec "$cli" --global-config "$root/support/vercel/.global" "$@"

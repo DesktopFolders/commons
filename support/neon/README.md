@@ -6,7 +6,7 @@ Each site gets its own Neon project, so sites never share tables.
 
 | Site | Neon project   | Env file   | Plan               |
 | ---- | -------------- | ---------- | ------------------ |
-| Cal  | `commons-cal`  | `CAL_*` in `commons/.env` | `plan/PLAN-cal.md` |
+| Cal  | `commons-cal`  | `CAL_*` in `commons/.env` | `support/cal/README.md` |
 
 ## Create a database for a site
 
@@ -42,6 +42,12 @@ neon link --project-id <project-id> --branch production -y   # run in the site's
 Find `<project-id>` under **Settings** in the Neon console, or in the prompt Neon shows.
 
 Skip the prompt's `neon config init`, `neon.ts` and `neon deploy` steps. They set up Neon's own backend config, which sites like Cal don't use. Cal creates its tables with its own migrations (`site-env CAL yarn db-deploy`).
+
+## Branches for testing
+
+A Neon project can have several branches, each a separate copy of the database with its own connection string.
+Keep `production` for the hosted site, and create a branch (e.g. `dev`) in the Neon console under **Branches** for local testing and demo data.
+Point the local site's `.env` at the branch's connection string.
 
 ## Pooled or direct connection
 

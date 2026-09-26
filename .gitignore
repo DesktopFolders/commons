@@ -7,8 +7,8 @@ __pycache__/
 .env
 .env.*
 
-# Cal.com clone (separate git repo, see plan/PLAN-cal.md)
-cal/
+# Cal.com clone (separate git repo, see support/cal/README.md)
+/cal/
 
 # Node
 node_modules/
@@ -18,3 +18,11 @@ node_modules/
 
 # Logs
 *.log
+
+# Keep env templates
+!.env.example
+
+# Vercel CLI: local npm cache, CLI config, and project links
+support/vercel/.npm-cache/
+support/vercel/.global/
+.vercel/

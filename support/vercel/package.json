@@ -1,0 +1,8 @@
+{
+  "name": "commons-vercel",
+  "private": true,
+  "description": "Vercel CLI installed locally for commons (see support/vercel/README.md)",
+  "dependencies": {
+    "vercel": "60.1.3"
+  }
+}

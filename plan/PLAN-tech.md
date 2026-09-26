@@ -10,4 +10,4 @@ For RFP spec generation - Guidance for integrated development updates using AI M
 
 ## Components
 
-[Cal.com](https://github.com/calcom/cal.diy) - [PLAN-cal.md](../plan/PLAN-cal.md)
+[Cal.com](https://github.com/calcom/cal.diy) - [support/cal/README.md](../support/cal/README.md)

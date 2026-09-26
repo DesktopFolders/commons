@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/calendar-subscriptions-cleanup",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/tasks/cleanup",
+      "schedule": "0 0 * * *"
+    }
+  ],
+  "functions": {}
+}

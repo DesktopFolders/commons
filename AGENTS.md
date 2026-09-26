@@ -17,7 +17,7 @@ Each site runs in its own folder on its own port. Before starting a site, check 
 
 Sites:
 
-- Cal: folder `commons/cal`, port 3000, setup in `plan/PLAN-cal.md`
+- Cal: folder `commons/cal`, port 3000, setup in `support/cal/README.md`
 
 When adding a site, give it an unused port, add it to the list above and a section below.
 
@@ -27,6 +27,7 @@ When adding a site, give it an unused port, add it to the list above and a secti
 `CAL_DATABASE_URL`, not `DATABASE_URL`.
 
 - Never add generic names like `DATABASE_URL`, `NEXTAUTH_SECRET` or `PORT` to `commons/.env`. Two sites would clash, and direnv loads the file into every shell in `commons/`.
+- Exception: tokens for shared tools keep the tool's own name, e.g. `NEON_API_KEY` and `VERCEL_TOKEN`.
 - Keep each site's non-secret settings in its own env file (e.g. `cal/.env`), under the names the site expects.
 - Run site commands through `site-env <PREFIX>` (in `support/bin/`, which is on the PATH via `.envrc`). It exports each `PREFIX_NAME` as `NAME` for that one command:
   `site-env CAL yarn start` → Cal sees `DATABASE_URL`.
@@ -34,7 +35,7 @@ When adding a site, give it an unused port, add it to the list above and a secti
 ### Cal (port 3000)
 
 Cal optionally uses a Neon PostgreSQL database (see `support/neon/README.md`). Its secrets are the `CAL_*` entries in `commons/.env`.
-If `cal/` is missing, or `CAL_DATABASE_URL` in `commons/.env` is empty, follow `plan/PLAN-cal.md` steps 0-4 first.
+If `cal/` is missing, or `CAL_DATABASE_URL` in `commons/.env` is empty, follow `support/cal/README.md` steps 0-4 first.
 If `cal/apps/web/.next` is missing, run `site-env CAL yarn build` first.
 
 ```bash
