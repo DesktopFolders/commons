@@ -6,7 +6,7 @@ Guidance for AI agents setting up and hosting [Cal.diy](https://github.com/calco
 | -------- | ------------------------------------------------------ |
 | Folder   | `commons/cal` (a separate git clone, ignored by commons) |
 | Local    | http://localhost:3000                                  |
-| Hosted   | Vercel, Pro or free plan (see "Deploy to Vercel", not yet tested) |
+| Hosted   | https://commons-cal.vercel.app (Vercel free plan, see "Deploy to Vercel") |
 | Database | [Neon](https://neon.tech) PostgreSQL (no Docker)       |
 | Auth     | NextAuth 4, built into Cal (`NEXTAUTH_*` settings)     |
 
@@ -161,61 +161,88 @@ site-env CAL yarn db-deploy
 site-env CAL yarn build
 ```
 
-## Deploy to Vercel (not yet tested)
+## Deploy to Vercel
 
+Deployed on the free (Hobby) plan at https://commons-cal.vercel.app (project `commons-cal` in `modelearths-projects`).
 Commands use the local Vercel CLI (`vercel`, see `support/vercel/README.md`), which reads `VERCEL_TOKEN` from `commons/.env`.
 
 ### What Cal requires
 
 From `cal/README.md` and `cal/apps/web/vercel.json`:
 
-- **Project root:** `apps/web`, with build command `cd ../.. && yarn build`.
+- **Project settings:** Root Directory `apps/web`, build command `cd ../.. && yarn build`, framework Next.js.
 - **Environment variables:** `DATABASE_URL`, `NEXT_PUBLIC_WEBAPP_URL`, `NEXTAUTH_URL`, `NEXTAUTH_SECRET`, `CRON_API_KEY`, `CALENDSO_ENCRYPTION_KEY`.
-- **Plan:** Cal's README says the Pro plan is required, because of the free plan's serverless function limit.
-  That note may be outdated; only a deploy will tell. `vercel.json` also schedules crons every minute and every 5 minutes.
+- **Plan:** Cal's README says Pro is required because of the free plan's function limit. That note is outdated: the free plan built and deployed it.
 
-### Settings for both plans
+### Scripts
 
-| Vercel variable           | Value                                                                                  |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| `DATABASE_URL`            | Neon **pooled** string: `CAL_DATABASE_URL` with `-pooler` added after the endpoint id (`ep-xxx` → `ep-xxx-pooler`) |
-| `DATABASE_DIRECT_URL`     | `CAL_DATABASE_DIRECT_URL` (direct)                                                     |
-| `NEXTAUTH_SECRET`         | `CAL_NEXTAUTH_SECRET`                                                                  |
-| `CALENDSO_ENCRYPTION_KEY` | `CAL_CALENDSO_ENCRYPTION_KEY` (must match the database's existing data)                |
-| `CRON_API_KEY`            | `CAL_CRON_API_KEY`                                                                     |
-| `CRON_SECRET`             | `CAL_CRON_API_KEY`. Vercel's cron runner sends it as `Authorization: Bearer ...`       |
-| `NEXT_PUBLIC_WEBAPP_URL`  | The Vercel URL or custom domain, e.g. `https://commons-cal.vercel.app`                 |
-| `NEXTAUTH_URL`            | Same as `NEXT_PUBLIC_WEBAPP_URL`                                                       |
-| `CALCOM_TELEMETRY_DISABLED` | `1`                                                                                  |
+| Script                          | Does                                                                                   |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| `support/cal/vercel-env.sh`     | Copies the settings below from `commons/.env` into the project (Production), without printing values |
+| `support/cal/vercel-deploy.sh`  | Exports `cal/`'s committed files to `.deploy/cal` (ignored by git), then runs `vercel deploy --prod` from there |
 
-- Copy values without printing them: pipe each one into `vercel env add NAME production` (the CloudRoot pattern in `support/vercel/README.md`).
+Deploying from a clean export keeps local `.env` files and build output out of the upload. `cal/` itself is never modified.
+
+Vercel's build reads `apps/web/vercel.json` from the upload (`--local-config` does not apply to remote builds), so the deploy script replaces that file in the export:
+
+- **Free plan (default):** uses `support/cal/vercel.hobby.json`, which keeps only Cal's two daily crons.
+- **Pro plan:** `support/cal/vercel-deploy.sh --pro` keeps Cal's own crons.
+  Both need this step: Cal's file contains `"functions": {}`, which Vercel's current build rejects.
+
+### First-time setup
+
+Run from `commons/`:
+
+1. `vercel project add commons-cal`
+2. Set the project settings above (CloudRoot's `set-root-directory.js` pattern):
+   `vercel api /v9/projects/commons-cal -X PATCH -f rootDirectory=apps/web -f buildCommand='cd ../.. && yarn build' -f framework=nextjs`
+3. Check the production domain: `vercel api /v9/projects/commons-cal/domains`. If it isn't `commons-cal.vercel.app`, change `WEBAPP_URL` in `vercel-env.sh`.
+4. `support/cal/vercel-env.sh`
+5. `support/cal/vercel-deploy.sh`
+
+The build takes about 10 minutes (2 cores, 8 GB). If the CLI stops with `fetch failed`, only its log stream dropped; follow the build with
+`vercel inspect <deployment-url> --wait --timeout 40m`, and `--logs` for the build log.
+
+### Updating
+
+1. `cd cal && git pull && yarn install`
+2. `site-env CAL yarn db-deploy`: migrate Neon first. The Vercel build does not migrate.
+3. `support/cal/vercel-deploy.sh`
+
+Re-run `support/cal/vercel-env.sh`, then deploy, after changing a value in `commons/.env`. Vercel does not rebuild on env changes.
+
+### Environment variables on Vercel
+
+| Vercel variable             | Value from `commons/.env`                                                        |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| `DATABASE_URL`              | Neon **pooled** string: `CAL_DATABASE_URL` with `-pooler` added after the endpoint id |
+| `DATABASE_DIRECT_URL`       | `CAL_DATABASE_DIRECT_URL`                                                        |
+| `NEXTAUTH_SECRET`           | `CAL_NEXTAUTH_SECRET`                                                            |
+| `CALENDSO_ENCRYPTION_KEY`   | `CAL_CALENDSO_ENCRYPTION_KEY`                                                    |
+| `CRON_API_KEY`              | `CAL_CRON_API_KEY`                                                               |
+| `CRON_SECRET`               | `CAL_CRON_API_KEY`. Vercel's cron runner sends it as `Authorization: Bearer ...` |
+| `NEXT_PUBLIC_WEBAPP_URL`, `NEXT_PUBLIC_WEBSITE_URL`, `NEXTAUTH_URL` | `https://commons-cal.vercel.app` (set in `vercel-env.sh`) |
+| `CALCOM_TELEMETRY_DISABLED` | `1`                                                                              |
+| `HUSKY`                     | `0`. Cal's postinstall runs `husky install`, which needs a `.git` folder         |
+
+- Secrets are stored as Vercel "Sensitive" variables. Turbo warns that `HUSKY` isn't passed to build tasks; that's expected, since only install uses it.
 - `NEXT_PUBLIC_*` values are compiled in, so changing the domain needs a redeploy.
-- Keep the Vercel function region next to the Neon region (Neon `us-east-1` ↔ Vercel `iad1`).
-- Run `site-env CAL yarn db-deploy` locally against Neon before deploying new code. The Vercel build does not migrate.
-- Never seed the database a hosted site uses.
+- The project's function region is `iad1`, next to the Neon database in `us-east-1`.
 
-### Pro plan
+### Shared database
 
-1. Link a project from `cal/`: `vercel link --project commons-cal`, then set its Root Directory to `apps/web`
-   (in the project settings, or through the API as CloudRoot's `set-root-directory.js` does).
-2. Add the environment variables above.
-3. Deploy from `cal/`: `vercel deploy --prod`. Cal's own `vercel.json` crons are used as-is.
+The hosted site and the local install use the same Neon database, so accounts and bookings are shared.
+Both must keep the same `CALENDSO_ENCRYPTION_KEY`. Never seed this database; use a Neon branch for local testing.
 
-### Free (Hobby) plan
+Once any user exists, Cal's setup API refuses to create another admin ("No setup needed."), so the public `/auth/setup` page can't be used to take over the site.
 
-Differences from Pro, as far as we know. Check them on the first deploy:
+### Free plan limits
 
-- **Crons:** Hobby cron jobs can run at most once a day, and a deploy fails if `vercel.json` asks for more.
-  Deploy with the daily-only config kept in commons, without editing Cal's files:
-  `vercel deploy --prod --local-config ../support/cal/vercel.hobby.json`
-- **Frequent jobs:** `vercel.hobby.json` drops the jobs Cal runs every minute or every 5 minutes
+- **Crons:** the free plan allows at most one run a day per job. `vercel.hobby.json` drops the jobs Cal runs every minute or every 5 minutes
   (`/api/tasks/cron`, `/api/cron/calendar-subscriptions`, `/api/cron/selected-calendars`, `/api/cron/credentials`).
   If needed, call them from an outside scheduler (e.g. a scheduled GitHub Action) with the header `authorization: <CAL_CRON_API_KEY>`.
   Without them, queued tasks such as some emails and webhooks wait for the next call.
-- **Function limit:** if the deploy fails on the number or size of functions, the free plan can't host Cal. Use Pro or another host.
-- **Build:** Cal's build is large. If the remote build runs out of memory, build locally with `vercel build --prod`,
-  then upload the result with `vercel deploy --prebuilt --prod`.
-- **Use:** Hobby is for personal, non-commercial projects.
+- **Use:** the free plan is for personal, non-commercial projects.
 
 ## About Database
 

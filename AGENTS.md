@@ -17,7 +17,7 @@ Each site runs in its own folder on its own port. Before starting a site, check 
 
 Sites:
 
-- Cal: folder `commons/cal`, port 3000, setup in `support/cal/README.md`
+- Cal: folder `commons/cal`, port 3000, setup in `support/cal/README.md`. Hosted at https://commons-cal.vercel.app (deploy: `support/cal/vercel-deploy.sh`)
 
 When adding a site, give it an unused port, add it to the list above and a section below.
 
