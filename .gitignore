@@ -1,12 +1,3 @@
-# Python venv (created by .envrc)
-env/
-__pycache__/
-*.pyc
-
-# Local secrets
-.env
-.env.*
-
 # Cal.com clone (separate git repo, see support/cal/README.md)
 /cal/
 
@@ -19,9 +10,6 @@ node_modules/
 # Logs
 *.log
 
-# Keep env templates
-!.env.example
-
 # Vercel CLI: local npm cache, CLI config, and project links
 support/vercel/.npm-cache/
 support/vercel/.global/
@@ -29,3 +17,14 @@ support/vercel/.global/
 
 # Clean exports uploaded by support/cal/vercel-deploy.sh
 /.deploy/
+
+# Python venv (created by .envrc)
+env
+venv
+.venv
+.envrc
+.env
+.env.*
+!.env.example
+__pycache__/
+*.pyc

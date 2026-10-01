@@ -6,7 +6,7 @@ Otherwise, if any step fails, explain the failure in plain language and suggest 
 
 ## Sandbox Environment Setup (Python venv + direnv)
 
-The webroot is the repo root (`commons/`, two levels up from this file). All
+The webroot is the repo root (two levels up from this file). All
 paths below are relative to the webroot, not to this folder.
 
 Before doing any Python-related work in this repo, check whether the local
@@ -17,12 +17,16 @@ automatically rather than asking the user to run commands themselves.
 
 1. Check if `.envrc` exists in the webroot. If missing, create it (see
    template below).
-2. Check if `direnv` is installed:
+2. If `.envrc` exists, compare its `# envrc-version:` line with the template
+   below. If the line is missing or its number is lower, rewrite `.envrc`
+   from the template. `.envrc` is gitignored, so this is how template
+   updates reach each machine.
+3. Check if `direnv` is installed:
    - macOS/Linux: `command -v direnv`
    - Windows (PowerShell): `Get-Command direnv -ErrorAction SilentlyContinue`
-3. Check if a Python venv already exists at `env/` in the webroot. If missing, it will be
+4. Check if a Python venv already exists at `env/` in the webroot. If missing, it will be
    created by `.envrc` on first load (macOS/Linux) or must be created
-   directly (Windows, see below).
+   directly (Windows, see below), using whatever Python 3 the machine has.
 
 ### If direnv is missing, detect OS and install it
 
@@ -58,10 +62,15 @@ run `.\setup.ps1` once per session instead of relying on auto-activation.
 
 ### `.envrc` template (macOS/Linux only)
 
-If `.envrc` does not exist, create it with this content:
+If `.envrc` does not exist, or its `# envrc-version:` is lower than the one
+here, write it with this content. When you change this template, increase
+the version number by one so existing copies get rewritten.
 
 ```bash
-if [ ! -d "env" ]; then
+# envrc-version: 3
+# Generated from support/python/PYTHON.md. Edit the template there, not this copy.
+
+if [ ! -d env ]; then
   echo "Creating virtual environment..."
   python3 -m venv env
 fi
@@ -84,7 +93,8 @@ to the user.
 
 1. Detect OS (`uname` on macOS/Linux, or check `$OS`/`PSVersionTable` on
    Windows via PowerShell).
-2. If `.envrc` is missing (macOS/Linux) → create it, then run
+2. If `.envrc` is missing or its `# envrc-version:` is older than the
+   template (macOS/Linux) → write it from the template, then run
    `direnv allow`.
 3. If `direnv` itself is missing → install it per the OS-specific steps
    above, then re-run `direnv allow`.
