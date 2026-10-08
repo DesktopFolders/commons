@@ -17,8 +17,15 @@ Guidance for AI agents setting up and hosting [Cal.diy](https://github.com/calco
 
 ## 0. Create the Neon database (first time only)
 
-Follow `support/neon/README.md` to create a Neon project named `commons-cal`.
-In step 2, its **direct** (non-pooled) connection string goes into both `CAL_DATABASE_URL` and `CAL_DATABASE_DIRECT_URL` in `commons/.env`.
+Run from `commons/`, after adding `NEON_API_KEY` to `commons/.env` (see `support/neon/README.md`):
+
+```bash
+test -e .env || cp .env.example .env    # then paste the key into NEON_API_KEY=""
+node support/neon/neon-db.mjs cal --create
+```
+
+It creates the Neon project `commons-cal` if needed and writes its **direct** (non-pooled) connection string to both
+`CAL_DATABASE_URL` and `CAL_DATABASE_DIRECT_URL`.
 
 ## 1. Install (first time only)
 
@@ -48,7 +55,7 @@ Run from `cal/`. Each part is only added if it's missing, so this is safe to re-
 test -e .env || grep -vE '^(DATABASE_URL|DATABASE_DIRECT_URL|NEXTAUTH_SECRET|CALENDSO_ENCRYPTION_KEY|CRON_API_KEY)=' .env.example \
   | sed 's/^CALCOM_TELEMETRY_DISABLED=.*/CALCOM_TELEMETRY_DISABLED=1/' > .env
 
-# commons/.env: create from the template (header and optional NEON_API_KEY)
+# commons/.env: create from the template (header and NEON_API_KEY)
 test -e ../.env || cp ../.env.example ../.env
 
 # Cal's database URLs, left empty to fill in from Neon
@@ -73,15 +80,15 @@ The result in `commons/.env`:
 
 | Variable                      | Value                                            |
 | ----------------------------- | ------------------------------------------------ |
-| `NEON_API_KEY`                | Optional, left empty                             |
-| `CAL_DATABASE_URL`            | Paste the Neon direct connection string (step 0) |
+| `NEON_API_KEY`                | Neon organization API key, used by `support/neon/neon-db.mjs` |
+| `CAL_DATABASE_URL`            | Neon direct connection string, written by `neon-db.mjs` (step 0) |
 | `CAL_DATABASE_DIRECT_URL`     | Same as `CAL_DATABASE_URL`                       |
 | `CAL_NEXTAUTH_SECRET`         | Random, generated above                          |
 | `CAL_CALENDSO_ENCRYPTION_KEY` | Random, generated above                          |
 | `CAL_CRON_API_KEY`            | Random, generated above. Protects Cal's cron endpoints; the value in Cal's `.env.example` is public. |
 | `CAL_DEMO_PASSWORD`           | Random, generated above. Password for all demo users (step 3). |
 
-The two database URLs are the only values to fill in by hand.
+The two database URLs come from Neon (step 0).
 An agent running this page generates the random secrets itself; nobody needs to look them up or paste them.
 
 `cal/.env` defaults to `NEXT_PUBLIC_WEBAPP_URL` and `NEXTAUTH_URL` of `http://localhost:3000`, which is correct for local use.
