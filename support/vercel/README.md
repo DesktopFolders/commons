@@ -29,13 +29,13 @@ npm_config_cache="$PWD/.npm-cache" npm install --save-exact vercel@latest
 
 1. Create a token at https://vercel.com/account/tokens.
    - **Scope:** your personal account on the free (Hobby) plan, or the team that owns the project on Pro.
-   - **Expiration:** set one. Create a new token when it expires.
+   - **Expiration:** optional. Without one, delete the token yourself when it's no longer needed; with one, the `vercel` commands fail until you create a new token.
 2. Paste it into `commons/.env` yourself, as `VERCEL_TOKEN="..."`. Never paste it into chat.
 3. Check it: `vercel whoami`
 
 Vercel tokens are scoped to an account or team, not to one project, as far as we know.
 So creating the project first does not narrow what the token can reach.
-To limit the risk, give the token an expiration date and revoke it when automation is no longer needed.
+To limit the risk, delete the token (Account Settings → Tokens) when automation is no longer needed, or straight away if `commons/.env` may have been shared.
 
 `VERCEL_TOKEN` is a tool credential like `NEON_API_KEY`, so it has no site prefix.
 CloudRoot names the same token `VERCEL_API_TOKEN` in its `.env.local`.
