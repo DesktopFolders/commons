@@ -1,0 +1,6 @@
+[submodule "engine"]
+	path = engine
+	url = https://github.com/ModelEarth/engine
+[submodule "localsite"]
+	path = localsite
+	url = https://github.com/ModelEarth/localsite
