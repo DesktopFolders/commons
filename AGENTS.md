@@ -10,6 +10,18 @@ Exception: CLI logins may save their credentials outside this folder, in the too
 (e.g. `neon login` → `~/.config/neonctl/`). This covers saving credentials only. It does not allow installing
 tools globally or changing other files outside this folder, which still need permission.
 
+## GitHub Accounts
+
+Several GitHub accounts are logged in to the `gh` CLI. Approved accounts may be used for git operations in this
+folder without asking first, including switching to one with `gh auth switch --user <account>`
+(which saves to `~/.config/gh/`). Switch back to the previously active account when done.
+
+Approved accounts:
+
+- DesktopFolders
+
+Ask before using any other account.
+
 ## Start Website
 
 Each site runs in its own folder on its own port. Before starting a site, check that its port is free:
