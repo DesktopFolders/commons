@@ -7,3 +7,6 @@
 [submodule "veil"]
 	path = veil
 	url = https://github.com/DesktopFolders/veil
+[submodule "studio-square"]
+	path = studio-square
+	url = https://github.com/DesktopFolders/studio-square
