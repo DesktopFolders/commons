@@ -4,3 +4,6 @@
 [submodule "localsite"]
 	path = localsite
 	url = https://github.com/ModelEarth/localsite
+[submodule "veil"]
+	path = veil
+	url = https://github.com/DesktopFolders/veil
